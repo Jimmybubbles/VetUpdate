@@ -2,8 +2,16 @@ const { gpl } = require('apollo-server-express')
 
 const typeDefs = gql`
 
+type User {
+    _id: ID
+    username: String
+    email: String
+    password: String
+}
+
+
 type Query {
-    users: [User]
+    user: [User]
     user(username: String!): User
     pets(username: String)
     me: User
