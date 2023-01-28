@@ -1,65 +1,39 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-// exports a valid middleware function 
-// takes incoming requests and funnels them to parse to right resolvers.
-const { graphqlHTTP } = require('express-graphql');
-// import destructured data from graphql
+const { ApolloServer } = require('apollo-server-express')
+const path = require('path')
+const { authMiddleware } = require('./server/utils/auth')
 
-const { buildSchema } = require('graphql')
+// deconstruct the typedefs and resolvers 
+const { typeDefs, resolvers } = require('./server/schemas');
+const db = require('./server/config/connection');
 
+const PORT = process.env.PORT || 3001;
 // create a express server object
 const app = express();
-// create port variable to be parsed to listen
-const PORT = 3001;
 
-// body parser middleware
-app.use(bodyParser.json())
+// create a NEW instantiation of apollo server
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: authMiddleware,
+});
 
-// test route hello world
-// app.get('/', (req, res, next) => {
-//     res.send('hello world!');
-// })
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json());
 
-// graphql has one end point where requests are sent
-// build schema, imported from graphql to
-// build a template literal string to pass to javascript objects later
-// queries = fetch data
-// mutation = change data (CRUD)
-app.use('/graphql', graphqlHTTP({
-    schema: buildSchema(`
+// create a new instance of an Apollo server with GraphQL schema
+const startApolloServer = async (typeDefs, resolvers) => {
+    await server.start();
+    server.applyMiddleware({ app });
 
-        type RootQuery {
-            events: [String!]!
-        }
+    db.once('open', () => {
+        app.listen(PORT, () => {
+            console.log(`API server running on port ${PORT}!`);
+            console.log(`Use GraphQL at http:/localhost:${PORT}${server.graphqlPath}`)
+        })
+    })
 
-        type RootMutation {
-            createEvent(name: String): String
+};
 
-        }
-
-
-        schema { 
-           query: RootQuery
-           mutation: RootMutation
-        }
-    
-    `),
-    // bundles the resolvers 
-    rootValue: {
-        events: () => {
-            return ['pet surgery', 'pet vaccination', 'pet checkup']
-        },
-
-        createEvent: (args) => {
-            const eventName = args.name;
-            return eventName;
-        }
-
-    },
-    graphiql: true
-})
-);
-
-app.listen(PORT, () =>
-  console.log(`Listening for requests on port ${PORT}! 🏎️`)
-);
+// Call the async function to start the server
+startApolloServer(typeDefs, resolvers);
