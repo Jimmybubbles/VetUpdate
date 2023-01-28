@@ -1,0 +1,30 @@
+{
+  "name": "vetupdate",
+  "version": "1.0.0",
+  "description": "crm that will update clients on the progress of their animal when it is at the vets.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jimmybubbles/VetUpdate.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jimmybubbles/VetUpdate/issues"
+  },
+  "homepage": "https://github.com/Jimmybubbles/VetUpdate#readme",
+  "dependencies": {
+    "apollo-server-express": "^3.11.1",
+    "body-parser": "^1.20.1",
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
